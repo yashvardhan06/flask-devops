@@ -1,10 +1,14 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["main"]
   pull_request:
-    branches: ["main", "master"]
+    branches: ["main"]
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build-test:
@@ -29,8 +33,7 @@ jobs:
           python -m compileall .
 
       - name: Run tests
-        run: |
-          pytest -q
+        run: python -m pytest -q
 
       - name: Build application package
         run: |
@@ -49,6 +52,7 @@ jobs:
           trivy image --severity HIGH,CRITICAL --exit-code 1 portfolio-app:${{ github.sha }}
 
       - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -56,60 +60,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           IMAGE=ghcr.io/${{ github.repository_owner }}/portfolio-app:${{ github.sha }}
           docker tag portfolio-app:${{ github.sha }} $IMAGE
           docker push $IMAGE
-
-  deploy:
-    needs: build-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Install Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v3.15.2
-
-      - name: Set up Kubernetes CLI
-        uses: azure/setup-kubectl@v4
-        with:
-          version: v1.30.0
-
-      - name: Create kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-          printf '%s' "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
-
-      - name: Deploy with Helm
-        run: |
-          helm upgrade --install portfolio-dev ./helm/portfolio-app \
-            -f ./helm/portfolio-app/values-dev.yaml \
-            --namespace dev \
-            --create-namespace \
-            --set image.repository=ghcr.io/${{ github.repository_owner }}/portfolio-app \
-            --set image.tag=${{ github.sha }}
-
-          helm upgrade --install portfolio-prod ./helm/portfolio-app \
-            -f ./helm/portfolio-app/values-prod.yaml \
-            --namespace prod \
-            --create-namespace \
-            --set image.repository=ghcr.io/${{ github.repository_owner }}/portfolio-app \
-            --set image.tag=${{ github.sha }}
-
-      - name: Verify rollout
-        run: |
-          kubectl rollout status deployment/portfolio-app -n dev --timeout=180s
-          kubectl rollout status deployment/portfolio-app -n prod --timeout=180s
-          kubectl get pods -n dev
-          kubectl get pods -n prod
-
-      - name: Smoke test
-        run: |
-          curl -fsS http://$(kubectl get ingress portfolio-dev-ingress -n dev -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/health || true
-          curl -fsS http://$(kubectl get ingress portfolio-prod-ingress -n prod -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/health || true

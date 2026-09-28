@@ -53,27 +53,16 @@ This starts the Flask app and a PostgreSQL container.
 
 ## CI/CD pipeline
 
-The workflow in `.github/workflows/ci.yml` covers the pipeline stages described in the project brief:
+The workflow in `.github/workflows/ci.yml` runs these checks on pushes and pull requests to `main`:
 
-1. checkout code
-2. install Python dependencies
-3. run lint and compile checks
-4. run unit tests
-5. build the Flask app
-6. build a Docker image
-7. scan the image with Trivy
-8. push to GHCR
-9. deploy with Helm to dev and prod namespaces
-10. verify rollout and smoke-test the app
+1. checkout code and install Python dependencies
+2. compile the application and run unit tests
+3. build the Docker image and scan it with Trivy
+4. on pushes to `main`, publish the image to GHCR using the automatically provided `GITHUB_TOKEN`
 
-### Required GitHub secrets
+The workflow does not automatically deploy to Kubernetes yet. GitHub-hosted runners cannot reach a Minikube cluster running on a developer's laptop. Automating that step requires a self-hosted runner with access to the cluster, or a remotely accessible Kubernetes cluster.
 
-Add the following secrets in the GitHub repository settings:
-
-- `KUBE_CONFIG` — base64-encoded kubeconfig for your Kubernetes cluster
-- `GITHUB_TOKEN` — provided automatically by GitHub Actions for ghcr.io pushes
-
-### Example deploy command
+### Example local Helm deployment
 
 ```bash
 helm upgrade --install portfolio-dev ./helm/portfolio-app \
