@@ -1,0 +1,39 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/example/portfolio-app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5000
+
+config:
+  appEnv: production
+  logLevel: warn
+
+secret:
+  databaseUrl: postgresql://postgres:postgres@postgres:5432/appdb
+
+ingress:
+  enabled: true
+  className: nginx
+  host: portfolio.local
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+namespace: prod

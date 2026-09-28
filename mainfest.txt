@@ -1,0 +1,799 @@
+I want to build a complete **mid-level DevOps project from scratch** for my portfolio and resume.
+
+### Important constraints
+
+- Do NOT use AWS, Azure, GCP, or any paid cloud service.
+- Use only free/open-source tools wherever possible.
+- I have a Windows 11 laptop with VS Code.
+- I can use Docker Desktop.
+- I can use Ubuntu/Linux through a VM/WSL or a free local environment.
+- I want to learn the tools practically, not just copy commands.
+- Build the project as if it were a real production-style DevOps project.
+- Explain every major step in simple language before giving commands.
+- Do not skip foundational steps.
+- When there are multiple ways to do something, choose the most commonly used industry approach.
+- Prefer local/self-hosted infrastructure over cloud.
+- The final project should be strong enough to demonstrate in a DevOps fresher/junior interview.
+
+---
+
+# PROJECT IDEA
+
+Build a **Containerized Full-Stack Application with Complete DevOps Automation**.
+
+The application itself can be simple. The main focus should be the DevOps infrastructure, automation, deployment, security, monitoring, and documentation.
+
+Use this architecture:
+
+Developer
+   ↓
+GitHub Repository
+   ↓
+GitHub Actions CI/CD
+   ↓
+Build & Test
+   ↓
+Docker Image
+   ↓
+Container Registry
+   ↓
+Kubernetes
+   ↓
+Application
+   ↓
+Prometheus + Grafana
+   ↓
+Monitoring / Alerts
+
+---
+
+# TECHNOLOGY STACK
+
+Use the following tools where practical:
+
+### Source Control
+- Git
+- GitHub
+
+### Application
+Use a simple backend application such as:
+- Node.js + Express
+OR
+- Python Flask
+
+Choose whichever makes the DevOps implementation simpler.
+
+The application should expose:
+- `/`
+- `/health`
+- `/api/...`
+
+Include a basic database if useful:
+- PostgreSQL
+
+### Containerization
+- Docker
+- Docker Compose
+
+Create:
+- Dockerfile
+- docker-compose.yml
+- .dockerignore
+
+Use multi-stage Docker builds if applicable.
+
+### CI/CD
+Use:
+- GitHub Actions
+
+Pipeline should include:
+
+1. Checkout code
+2. Install dependencies
+3. Run linting
+4. Run unit tests
+5. Build application
+6. Build Docker image
+7. Scan Docker image
+8. Push image to registry
+9. Deploy to Kubernetes
+10. Verify deployment
+
+Use GitHub Container Registry (GHCR) if possible because I don't want to pay for Docker Hub.
+
+### Container Security
+
+Use:
+- Trivy
+
+Scan:
+- Docker image
+- filesystem/dependencies where appropriate
+
+The CI pipeline should fail when critical vulnerabilities are detected, where practical.
+
+### Kubernetes
+
+Use local Kubernetes.
+
+Prefer:
+- Minikube
+
+Do NOT use AWS EKS.
+
+Create Kubernetes manifests for:
+
+- Namespace
+- Deployment
+- Service
+- ConfigMap
+- Secret
+- Ingress
+- HorizontalPodAutoscaler
+
+Application architecture:
+
+Internet/Browser
+       ↓
+Ingress
+       ↓
+Kubernetes Service
+       ↓
+Application Pods
+       ↓
+PostgreSQL
+
+Use proper Kubernetes labels, selectors, resource requests and limits.
+
+### Kubernetes Package Management
+
+Use:
+- Helm
+
+Create a Helm chart for the application.
+
+The chart should contain:
+
+- Deployment
+- Service
+- ConfigMap
+- Secret
+- Ingress
+- HPA
+
+Use values.yaml so environment-specific configuration can be changed without modifying templates.
+
+---
+
+# ENVIRONMENTS
+
+Create at least two environments:
+
+### Development
+
+Namespace:
+dev
+
+### Production
+
+Namespace:
+prod
+
+The same Docker image/application should be deployable to both environments with different configuration.
+
+For example:
+
+dev:
+replicas: 1
+
+prod:
+replicas: 2
+
+Use Helm values files:
+
+values-dev.yaml
+values-prod.yaml
+
+---
+
+# DATABASE
+
+Use PostgreSQL.
+
+For local development:
+
+Docker Compose should run:
+
+- application
+- PostgreSQL
+
+For Kubernetes:
+
+Deploy PostgreSQL using a Kubernetes manifest or Helm.
+
+Explain the difference between running PostgreSQL using Docker Compose and Kubernetes.
+
+Do not pretend this local PostgreSQL setup is production-grade persistent storage. Clearly document its limitations.
+
+---
+
+# CI/CD PIPELINE
+
+Create a professional GitHub Actions workflow.
+
+Example pipeline stages:
+
+        Git Push
+           ↓
+     Checkout Code
+           ↓
+      Install Dependencies
+           ↓
+       Run Lint
+           ↓
+       Run Tests
+           ↓
+     Build Application
+           ↓
+      Security Scan
+           ↓
+      Docker Build
+           ↓
+       Trivy Scan
+           ↓
+      Push to GHCR
+           ↓
+   Deploy to Kubernetes
+           ↓
+     Rollout Verification
+           ↓
+        Smoke Test
+
+Use separate jobs where appropriate.
+
+For example:
+
+- test
+- security
+- docker
+- deploy
+
+Use GitHub Actions secrets where required.
+
+Do not hardcode credentials.
+
+---
+
+# GIT WORKFLOW
+
+Use a realistic Git workflow.
+
+Create:
+
+main
+develop
+feature/*
+
+Explain:
+
+- feature branches
+- pull requests
+- branch protection
+- merge strategy
+- semantic commit messages
+
+Example:
+
+feat: add health endpoint
+fix: correct database connection
+ci: add docker build workflow
+docs: update deployment guide
+
+---
+
+# DOCKER REQUIREMENTS
+
+Create a production-style Dockerfile.
+
+Requirements:
+
+- Small base image
+- Non-root user
+- Environment variables
+- Proper dependency installation
+- Layer caching
+- Multi-stage build if useful
+- Healthcheck where appropriate
+
+Also create:
+
+.dockerignore
+
+Explain why each part exists.
+
+---
+
+# DOCKER COMPOSE
+
+Create docker-compose.yml for local development.
+
+Services:
+
+app
+postgres
+
+Include:
+
+- networks
+- volumes
+- environment variables
+- health checks
+- dependency conditions where appropriate
+
+Use `.env.example`.
+
+Never commit actual passwords/secrets.
+
+---
+
+# KUBERNETES REQUIREMENTS
+
+Create a proper directory:
+
+k8s/
+
+Example:
+
+k8s/
+├── namespace.yaml
+├── configmap.yaml
+├── secret.yaml
+├── deployment.yaml
+├── service.yaml
+├── ingress.yaml
+└── hpa.yaml
+
+Explain every manifest.
+
+Deployment should include:
+
+- replicas
+- rolling update strategy
+- resource requests
+- resource limits
+- readiness probe
+- liveness probe
+- startup probe if useful
+- securityContext
+- environment variables
+
+---
+
+# HELM
+
+Create:
+
+helm/
+└── devops-app/
+    ├── Chart.yaml
+    ├── values.yaml
+    ├── values-dev.yaml
+    ├── values-prod.yaml
+    └── templates/
+        ├── deployment.yaml
+        ├── service.yaml
+        ├── configmap.yaml
+        ├── secret.yaml
+        ├── ingress.yaml
+        └── hpa.yaml
+
+Explain Helm:
+
+- chart
+- release
+- values
+- templates
+- Helm upgrade
+- Helm rollback
+
+---
+
+# MONITORING
+
+Use:
+
+- Prometheus
+- Grafana
+
+Install them into local Kubernetes using Helm.
+
+Monitor:
+
+- CPU
+- memory
+- pod health
+- pod restarts
+- request metrics where possible
+- application availability
+
+Create at least one Grafana dashboard.
+
+Include screenshots/documentation explaining the dashboard.
+
+---
+
+# LOGGING
+
+Implement basic centralized/container logging.
+
+Use Kubernetes logs initially:
+
+kubectl logs
+
+Then optionally introduce:
+
+- Loki
+- Promtail
+
+If Loki makes the project unnecessarily complex, implement it as an optional advanced phase.
+
+Explain:
+
+Application logs
+↓
+Container stdout
+↓
+Kubernetes
+↓
+Log collector
+↓
+Loki
+↓
+Grafana
+
+---
+
+# ALERTING
+
+Create at least basic alerts.
+
+Examples:
+
+- Pod unavailable
+- High CPU usage
+- High memory usage
+- Application down
+- Pod restart spike
+
+Use Prometheus alerting rules.
+
+If Alertmanager is practical locally, include it.
+
+---
+
+# SECURITY
+
+Implement basic DevSecOps practices.
+
+Use:
+
+- Trivy
+- GitHub Dependabot
+- GitHub Actions secrets
+- Kubernetes Secrets
+- non-root Docker containers
+- Kubernetes securityContext
+- least-privilege concepts
+- image vulnerability scanning
+
+Do not put:
+
+passwords
+API keys
+tokens
+credentials
+
+inside GitHub.
+
+Create:
+
+.env.example
+
+instead of:
+
+.env
+
+---
+
+# INFRASTRUCTURE AS CODE
+
+Because I don't want AWS, use infrastructure/configuration automation locally.
+
+Use:
+
+- Kubernetes YAML
+- Helm
+
+Optionally introduce:
+
+- Terraform with local providers
+
+Only add Terraform if it genuinely improves the project. Do not add tools just for the sake of adding tools.
+
+---
+
+# TESTING
+
+Implement:
+
+### Application tests
+
+Unit tests.
+
+### Docker tests
+
+Verify:
+
+- image builds
+- container starts
+- health endpoint works
+
+### Kubernetes tests
+
+Verify:
+
+kubectl get pods
+kubectl get services
+kubectl get deployments
+
+Then perform:
+
+curl /health
+
+### CI tests
+
+The GitHub Actions pipeline should automatically perform these checks.
+
+---
+
+# DEPLOYMENT STRATEGY
+
+Implement Kubernetes rolling deployment.
+
+Demonstrate:
+
+Version 1
+↓
+Deploy
+↓
+Version 2
+↓
+Rolling update
+↓
+Old pods terminate
+↓
+New pods become ready
+
+Then demonstrate rollback:
+
+helm rollback
+
+or:
+
+kubectl rollout undo
+
+Explain when each method should be used.
+
+---
+
+# PROJECT STRUCTURE
+
+Create a professional repository structure similar to:
+
+devops-production-demo/
+│
+├── app/
+│   ├── src/
+│   ├── tests/
+│   ├── package.json
+│   └── ...
+│
+├── Dockerfile
+├── docker-compose.yml
+├── .dockerignore
+├── .env.example
+│
+├── k8s/
+│   ├── namespace.yaml
+│   ├── configmap.yaml
+│   ├── secret.yaml
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── ingress.yaml
+│   └── hpa.yaml
+│
+├── helm/
+│   └── devops-app/
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       ├── values-dev.yaml
+│       ├── values-prod.yaml
+│       └── templates/
+│
+├── .github/
+│   └── workflows/
+│       ├── ci.yml
+│       └── cd.yml
+│
+├── monitoring/
+│   ├── prometheus/
+│   └── grafana/
+│
+├── docs/
+│   ├── architecture.md
+│   ├── deployment.md
+│   ├── troubleshooting.md
+│   └── screenshots/
+│
+└── README.md
+
+---
+
+# DOCUMENTATION
+
+Create an excellent README.md.
+
+It must contain:
+
+## 1. Project Overview
+
+Explain what the project does.
+
+## 2. Architecture
+
+Include an ASCII architecture diagram.
+
+## 3. Technology Stack
+
+Explain every tool.
+
+## 4. Prerequisites
+
+For example:
+
+- Git
+- GitHub account
+- VS Code
+- Docker Desktop
+- Minikube
+- kubectl
+- Helm
+
+## 5. Local Development
+
+Explain:
+
+git clone
+docker compose up
+
+## 6. Docker
+
+Explain image creation and container execution.
+
+## 7. Kubernetes
+
+Explain Minikube setup.
+
+## 8. Helm
+
+Explain deployment.
+
+## 9. CI/CD
+
+Explain the GitHub Actions pipeline.
+
+## 10. Security
+
+Explain Trivy and secrets management.
+
+## 11. Monitoring
+
+Explain Prometheus and Grafana.
+
+## 12. Troubleshooting
+
+Include common problems and fixes.
+
+## 13. Future Improvements
+
+Examples:
+
+- Argo CD
+- Terraform
+- Loki
+- Alertmanager
+- SonarQube
+- Kubernetes production cluster
+- GitOps
+- blue-green deployment
+- canary deployment
+
+---
+
+# LEARNING MODE
+
+Do NOT dump the entire project at once.
+
+Teach me progressively.
+
+Divide the project into phases:
+
+PHASE 1 — Project Planning & Architecture
+
+PHASE 2 — Application Creation
+
+PHASE 3 — Git & GitHub
+
+PHASE 4 — Docker
+
+PHASE 5 — Docker Compose
+
+PHASE 6 — GitHub Actions CI
+
+PHASE 7 — Container Security
+
+PHASE 8 — Kubernetes + Minikube
+
+PHASE 9 — Kubernetes Deployment
+
+PHASE 10 — Helm
+
+PHASE 11 — CD Pipeline
+
+PHASE 12 — Prometheus
+
+PHASE 13 — Grafana
+
+PHASE 14 — Logging
+
+PHASE 15 — Alerts
+
+PHASE 16 — Security Hardening
+
+PHASE 17 — Rollback & Failure Testing
+
+PHASE 18 — Final Documentation
+
+PHASE 19 — Portfolio & Resume Presentation
+
+---
+
+# IMPORTANT TEACHING RULE
+
+After completing every phase:
+
+1. Explain what we built.
+2. Explain why we built it.
+3. Show the commands.
+4. Explain important commands.
+5. Tell me what output I should expect.
+6. Give me verification commands.
+7. Give me common errors and fixes.
+8. Give me 3–5 interview questions related to that phase.
+9. Wait for me to confirm before moving to the next phase.
+
+If I encounter an error, stop the planned progression and troubleshoot the error first.
+
+Never assume that a command succeeded.
+
+Ask me to provide the output when verification is required.
+
+---
+
+# FINAL PROJECT GOAL
+
+At the end, I should be able to explain this project in an interview:
+
+"I built a complete containerized application and implemented an end-to-end DevOps workflow using GitHub, Docker, GitHub Actions, Kubernetes, Helm, Prometheus and Grafana. The pipeline automatically tests the application, performs security scanning, builds and publishes the container image, and deploys it to Kubernetes. I also implemented health checks, resource management, rolling deployments, rollback, monitoring and basic alerting."
+
+Make the project genuinely functional rather than creating fake configurations just to list technologies.
