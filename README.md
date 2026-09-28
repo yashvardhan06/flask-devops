@@ -32,6 +32,7 @@ Then open:
 
 - http://localhost:5000/
 - http://localhost:5000/health
+- http://localhost:5000/api/db-check
 - http://localhost:5000/api/status
 
 ### 3. Run tests

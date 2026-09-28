@@ -1,22 +1,19 @@
-version: "3.9"
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: portfolio-app
     ports:
       - "5000:5000"
     environment:
       APP_ENV: development
       DATABASE_URL: postgresql://postgres:postgres@db:5432/appdb
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:16-alpine
-    container_name: portfolio-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: appdb
@@ -26,6 +23,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 volumes:
   postgres_data:

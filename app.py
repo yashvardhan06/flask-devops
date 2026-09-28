@@ -1,4 +1,6 @@
 import os
+
+import psycopg
 from flask import Flask, jsonify
 
 app = Flask(__name__)
@@ -17,6 +19,17 @@ def index():
 @app.get("/health")
 def health():
     return jsonify({"status": "ok", "service": "portfolio-app"})
+
+
+@app.get("/api/db-check")
+def db_check():
+    try:
+        with psycopg.connect(DATABASE_URL, connect_timeout=3) as connection:
+            connection.execute("SELECT 1")
+    except psycopg.Error:
+        return jsonify({"status": "error", "database": "unavailable"}), 503
+
+    return jsonify({"status": "ok", "database": "connected"})
 
 
 @app.get("/api/status")
