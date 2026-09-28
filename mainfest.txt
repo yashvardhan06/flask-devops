@@ -797,3 +797,4 @@ At the end, I should be able to explain this project in an interview:
 "I built a complete containerized application and implemented an end-to-end DevOps workflow using GitHub, Docker, GitHub Actions, Kubernetes, Helm, Prometheus and Grafana. The pipeline automatically tests the application, performs security scanning, builds and publishes the container image, and deploys it to Kubernetes. I also implemented health checks, resource management, rolling deployments, rollback, monitoring and basic alerting."
 
 Make the project genuinely functional rather than creating fake configurations just to list technologies.
+docker compose up --build
