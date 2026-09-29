@@ -1,5 +1,4 @@
 # DevOps Portfolio Project - Interview Summary
-
 This project was built as a practical, local-first DevOps portfolio to demonstrate the complete lifecycle of a simple Python web application using free and commonly available tools. The goal was to show how an application moves from development to containerization, automated testing, source control, CI/CD, and deployment preparation without relying on paid cloud services.
 
 ## Overview
